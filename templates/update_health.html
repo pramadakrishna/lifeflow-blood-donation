@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-5 mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="glass-card rounded-4 overflow-hidden" data-aos="fade-up">
+                    
+                    <!-- Header -->
+                    <div class="card-header bg-gradient-danger text-white p-4 text-center">
+                        <i class="fas fa-heartbeat fa-3x mb-3"></i>
+                        <h3 class="mb-1">Update Your Health Status</h3>
+                        <p class="mb-0 opacity-75">Hello, {{ donor['name'] }}. Please answer the health questions again.</p>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5">
+                        
+                        <!-- Success Message -->
+                        {% if updated and not not_eligible %}
+                        <div class="alert alert-success rounded-3 mb-4">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Updated!</strong> Your health status has been saved.
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Not Eligible Message -->
+                        {% if not_eligible %}
+                        <div class="alert alert-warning rounded-3 mb-4">
+                            <h5 class="fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Health Status Updated</h5>
+                            <p>Based on your answers, your status is now: 
+                                <strong>
+                                    {% if health_status == 'temporarily_inactive' %}
+                                    ⏸️ Temporarily Inactive
+                                    {% else %}
+                                    ❌ Not Eligible
+                                    {% endif %}
+                                </strong>
+                            </p>
+                            <ul class="mb-2">
+                                {% for reason in rejection_reasons %}
+                                <li>{{ reason }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="mb-0 small">You can update again anytime your health changes. ❤️</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Health Questions Form -->
+                        <form method="POST">
+                            
+                            <!-- Weight -->
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-weight text-danger me-2"></i>Current Weight (kg)
+                                </label>
+                                <input type="number" name="weight" class="form-control rounded-3" 
+                                       value="{{ donor['weight'] or '' }}" required min="30" max="200">
+                                <div class="form-text text-muted">Minimum 50 kg required</div>
+                            </div>
+                            
+                            <!-- Health Questions -->
+                            <div class="health-questions glass-card p-3 rounded-3 mb-4 bg-light">
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Do you have fever, cold, or any illness in the last 2 weeks?</label>
+                                    <select name="has_fever" class="form-select rounded-3" required>
+                                        <option value="no" {% if not not_eligible or donor['health_status'] == 'eligible' %}selected{% endif %}>No, I'm healthy</option>
+                                        <option value="yes">Yes, I'm currently sick</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Do you have any chronic disease?</label>
+                                    <select name="has_chronic_disease" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Are you currently taking any prescription medication?</label>
+                                    <select name="on_medication" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Have you had any surgery in the last 6 months?</label>
+                                    <select name="recent_surgery" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Have you gotten a tattoo or piercing in the last 6 months?</label>
+                                    <select name="recent_tattoo" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Have you traveled to a malaria-risk area in the last 3 months?</label>
+                                    <select name="recent_travel" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Are you pregnant or breastfeeding? (For women)</label>
+                                    <select name="pregnant_breastfeeding" class="form-select rounded-3" required>
+                                        <option value="no" selected>No / Not Applicable</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Additional Health Notes (Optional)</label>
+                                    <textarea name="health_notes" class="form-control rounded-3" rows="3">{{ donor['health_notes'] or '' }}</textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger btn-lg rounded-3">
+                                    <i class="fas fa-save me-2"></i>Update My Status
+                                </button>
+                                <a href="{{ url_for('donors') }}" class="btn btn-outline-secondary rounded-3">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Donors
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section d-flex align-items-center min-vh-100">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right" data-aos-duration="1000">
+                <div class="hero-badge mb-3">
+                    <span class="badge bg-danger px-3 py-2 rounded-pill">
+                        <i class="fas fa-droplet me-2"></i>Join 10,000+ Life Savers
+                    </span>
+                </div>
+                <h1 class="hero-title display-3 fw-bold mb-4">
+                    Give the Gift of <span class="text-gradient">Life</span>
+                </h1>
+                <p class="hero-subtitle lead mb-4 text-secondary">
+                    Every drop counts. Join our elite network of heroes who have saved over <strong class="text-danger">{{ stats.lives_saved if stats else '50,000' }}</strong> lives through blood donation.
+                </p>
+                <div class="hero-cta d-flex gap-3 flex-wrap">
+                    <a href="/register" class="btn btn-danger btn-lg px-5 py-3 rounded-pill shadow-lg hover-lift">
+                        <i class="fas fa-hand-holding-heart me-2"></i>Become a Donor
+                    </a>
+                    <a href="/donors" class="btn btn-outline-dark btn-lg px-5 py-3 rounded-pill hover-lift">
+                        <i class="fas fa-search me-2"></i>Find Donors
+                    </a>
+                </div>
+                
+                <!-- Live Stats -->
+                <div class="live-stats mt-5 p-4 glass-card rounded-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h3 class="stat-number text-danger fw-bold mb-1" id="donorCount">0</h3>
+                                <small class="text-muted">Active Donors</small>
+                            </div>
+                        </div>
+                        <div class="col-4 border-start border-end">
+                            <div class="stat-item">
+                                <h3 class="stat-number text-success fw-bold mb-1" id="lifeCount">0</h3>
+                                <small class="text-muted">Lives Saved</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <h3 class="stat-number text-primary fw-bold mb-1">24/7</h3>
+                                <small class="text-muted">Support</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block" data-aos="fade-left" data-aos-duration="1000">
+                <div class="hero-image-container position-relative">
+                    <div class="hero-bg-circle"></div>
+                    <img src="https://www.tribuneindia.com/sortd-service/imaginary/v22-01/jpg/large/high?url=dGhldHJpYnVuZS1zb3J0ZC1wcm8tcHJvZC1zb3J0ZC9tZWRpYTIwYTlkOGYwLTdiYWYtMTFlZi1iY2UzLTI3MDBiNWYzZjYwYy5qcGc=" 
+                         alt="Blood Donation" class="hero-image img-fluid rounded-4 shadow-2xl">
+                    
+                    <!-- Floating Cards -->
+                    <div class="floating-card card-1 glass-card p-3 rounded-3" data-aos="zoom-in" data-aos-delay="500">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box bg-success text-white rounded-circle me-3">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Verified Donor</small>
+                                <strong>Prasad. K</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="floating-card card-2 glass-card p-3 rounded-3" data-aos="zoom-in" data-aos-delay="700">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box bg-danger text-white rounded-circle me-3">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Blood Type</small>
+                                <strong>O+ Available</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title display-5 fw-bold mb-3">Why Choose <span class="text-gradient">LifeFlow?</span></h2>
+            <p class="text-muted lead">We're revolutionizing blood donation with technology and compassion</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card h-100 p-4 glass-card rounded-4 text-center hover-lift">
+                    <div class="feature-icon mb-4 mx-auto">
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4 class="mb-3">Safe & Secure</h4>
+                    <p class="text-muted">Advanced screening protocols and sterile equipment ensure 100% safety for every donation.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card h-100 p-4 glass-card rounded-4 text-center hover-lift">
+                    <div class="feature-icon mb-4 mx-auto">
+                        <i class="fas fa-bolt fa-3x text-warning"></i>
+                    </div>
+                    <h4 class="mb-3">Instant Matching</h4>
+                    <p class="text-muted">AI-powered matching system connects donors with recipients in critical need within minutes.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card h-100 p-4 glass-card rounded-4 text-center hover-lift">
+                    <div class="feature-icon mb-4 mx-auto">
+                        <i class="fas fa-award fa-3x text-success"></i>
+                    </div>
+                    <h4 class="mb-3">Reward Program</h4>
+                    <p class="text-muted">Earn badges, certificates, and exclusive benefits as you reach donation milestones.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Process Section -->
+<section class="process-section py-5 bg-light-gradient">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title display-5 fw-bold mb-3">Simple <span class="text-gradient">4-Step</span> Process</h2>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="process-step text-center">
+                    <div class="step-number">1</div>
+                    <div class="step-icon mb-3">
+                        <i class="fas fa-user-edit fa-2x text-danger"></i>
+                    </div>
+                    <h5>Register Online</h5>
+                    <p class="small text-muted">Fill out our quick 2-minute form</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="process-step text-center">
+                    <div class="step-number">2</div>
+                    <div class="step-icon mb-3">
+                        <i class="fas fa-calendar-check fa-2x text-danger"></i>
+                    </div>
+                    <h5>Get Scheduled</h5>
+                    <p class="small text-muted">Choose your preferred time & location</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="process-step text-center">
+                    <div class="step-number">3</div>
+                    <div class="step-icon mb-3">
+                        <i class="fas fa-heartbeat fa-2x text-danger"></i>
+                    </div>
+                    <h5>Quick Donation</h5>
+                    <p class="small text-muted">15-minute painless procedure</p>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="process-step text-center">
+                    <div class="step-number">4</div>
+                    <div class="step-icon mb-3">
+                        <i class="fas fa-gift fa-2x text-danger"></i>
+                    </div>
+                    <h5>Save Lives</h5>
+                    <p class="small text-muted">Your blood saves up to 3 lives</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blood Types Info -->
+<section class="blood-types-section py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="section-title display-5 fw-bold mb-3">Blood Type <span class="text-gradient">Compatibility</span></h2>
+        </div>
+        
+        <div class="row g-3 justify-content-center">
+            {% for blood in ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] %}
+            <div class="col-6 col-md-3 col-lg-2" data-aos="zoom-in" data-aos-delay="{{ loop.index * 50 }}">
+                <div class="blood-type-card text-center p-3 glass-card rounded-4 hover-lift cursor-pointer" 
+                     onclick="showBloodInfo('{{ blood }}')">
+                    <div class="blood-drop mb-2">
+                        <i class="fas fa-tint fa-2x text-danger"></i>
+                    </div>
+                    <h4 class="mb-1 fw-bold">{{ blood }}</h4>
+                    <small class="text-muted compatibility-text" id="compat-{{ blood }}">Click for info</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

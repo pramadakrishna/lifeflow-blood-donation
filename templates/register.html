@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="register-section py-5 mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="register-card glass-card rounded-4 overflow-hidden" data-aos="fade-up">
+                    <div class="card-header bg-gradient-danger text-white p-4 text-center">
+                        <div class="header-icon mb-3">
+                            <i class="fas fa-hand-holding-medical fa-3x"></i>
+                        </div>
+                        <h2 class="mb-2">Join the LifeFlow Network</h2>
+                        <p class="mb-0 opacity-75">Become a hero in just 2 minutes</p>
+                    </div>
+                    
+                    <div class="card-body p-4 p-md-5">
+                        <form id="donorForm" action="/register" method="POST" class="needs-validation" novalidate>
+                            
+                            <!-- Progress Bar -->
+                            <div class="progress mb-4 rounded-pill" style="height: 8px;">
+                                <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" 
+                                     id="formProgress" role="progressbar" style="width: 0%"></div>
+                            </div>
+
+                            <!-- Personal Info Section -->
+                            <h5 class="fw-bold mb-3 text-danger">👤 Personal Information</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="name" class="form-label fw-semibold">
+                                        <i class="fas fa-user text-danger me-2"></i>Full Name
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg rounded-3" 
+                                           id="name" name="name" placeholder="Enter your full name" required>
+                                    <div class="invalid-feedback">Please enter your name</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="email" class="form-label fw-semibold">
+                                        <i class="fas fa-envelope text-danger me-2"></i>Email Address
+                                    </label>
+                                    <input type="email" class="form-control form-control-lg rounded-3" 
+                                           id="email" name="email" placeholder="name@example.com" required>
+                                    <div class="invalid-feedback">Please enter a valid email</div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="phone" class="form-label fw-semibold">
+                                        <i class="fas fa-phone text-danger me-2"></i>Phone Number
+                                    </label>
+                                    <input type="tel" class="form-control form-control-lg rounded-3" 
+                                           id="phone" name="phone" placeholder="1234567890" required pattern="[0-9]{10}">
+                                    <div class="invalid-feedback">10-digit number required</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="age" class="form-label fw-semibold">
+                                        <i class="fas fa-birthday-cake text-danger me-2"></i>Age
+                                    </label>
+                                    <input type="number" class="form-control form-control-lg rounded-3" 
+                                           id="age" name="age" placeholder="18-65" min="18" max="65" required>
+                                    <div class="form-text text-muted">Must be between 18-65 years</div>
+                                    <div class="invalid-feedback">Age must be 18-65</div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="blood_group" class="form-label fw-semibold">
+                                        <i class="fas fa-tint text-danger me-2"></i>Blood Group
+                                    </label>
+                                    <select class="form-select form-select-lg rounded-3" id="blood_group" name="blood_group" required>
+                                        <option value="" selected disabled>Select blood type</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select blood group</div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="city" class="form-label fw-semibold">
+                                        <i class="fas fa-map-marker-alt text-danger me-2"></i>City
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg rounded-3" 
+                                           id="city" name="city" placeholder="Your city" required>
+                                    <div class="invalid-feedback">Please enter your city</div>
+                                </div>
+                            </div>
+
+                            <!-- Weight Field  -->
+                            <div class="mb-4">
+                                <label for="weight" class="form-label fw-semibold">
+                                    <i class="fas fa-weight text-danger me-2"></i>Weight (kg)
+                                </label>
+                                <input type="number" class="form-control form-control-lg rounded-3" 
+                                       id="weight" name="weight" placeholder="Minimum 50 kg" min="30" max="200" required>
+                                <div class="form-text text-muted">Minimum 50 kg required for safe donation</div>
+                                <div class="invalid-feedback">Weight must be at least 50 kg</div>
+                            </div>
+
+                            <!-- Donation History Section -->
+                            <h5 class="fw-bold mb-3 text-danger mt-4"> Donation History</h5>
+                            
+                            <!-- First Time Donor Toggle -->
+                            <div class="mb-4 p-3 bg-light rounded-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="first_time" name="first_time" style="width: 3em; height: 1.5em;">
+                                    <label class="form-check-label ms-2 fw-semibold" for="first_time">
+                                        First time donor?
+                                        <span class="badge bg-success ms-2">Welcome!</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Last Donation Date (Conditional) -->
+                            <div class="mb-4" id="lastDateField">
+                                <label for="last_date" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar text-danger me-2"></i>Last Donation Date
+                                </label>
+                                <input type="date" class="form-control form-control-lg rounded-3" 
+                                       id="last_date" name="last_date" max="{{ today }}">
+                                <div class="form-text">Only if donated within last 6 months</div>
+                            </div>
+
+                            <!-- Health Screening Section -->
+                            <h5 class="fw-bold mb-3 text-danger mt-4"> Health Eligibility Check</h5>
+                            <p class="text-muted small mb-4">Please answer honestly. This ensures safe blood donation for everyone. All information is confidential.</p>
+                            
+                            <div class="health-questions glass-card p-3 rounded-3 mb-4 bg-light">
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Do you have fever, cold, or any illness in the last 2 weeks?</label>
+                                    <select name="has_fever" class="form-select rounded-3" required>
+                                        <option value="no" selected>No, I'm healthy</option>
+                                        <option value="yes">Yes, I'm currently sick</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Do you have any chronic disease? (HIV, Hepatitis B/C, Diabetes, Heart Disease, Cancer, etc.)</label>
+                                    <select name="has_chronic_disease" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Are you currently taking any prescription medication?</label>
+                                    <select name="on_medication" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                    <div class="form-text text-muted small">Antibiotics, blood thinners, acne medications, etc.</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Have you had any surgery, dental procedure, or hospitalization in the last 6 months?</label>
+                                    <select name="recent_surgery" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Have you gotten a tattoo, piercing, or acupuncture in the last 6 months?</label>
+                                    <select name="recent_tattoo" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Have you traveled to a malaria-risk area in the last 3 months?</label>
+                                    <select name="recent_travel" class="form-select rounded-3" required>
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Are you pregnant or breastfeeding? (For women)</label>
+                                    <select name="pregnant_breastfeeding" class="form-select rounded-3" required>
+                                        <option value="no" selected>No / Not Applicable</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Additional Health Notes (Optional)</label>
+                                    <textarea name="health_notes" class="form-control rounded-3" rows="3" 
+                                              placeholder="Any other health information you'd like to share..."></textarea>
+                                    <div class="form-text text-muted small">This helps us provide better care and follow-up</div>
+                                </div>
+                            </div>
+
+                            <!-- Terms Checkbox -->
+                            <div class="mb-4 p-3 bg-light rounded-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="terms" required>
+                                    <label class="form-check-label small" for="terms">
+                                        I confirm that:
+                                        <ul class="mb-0 mt-2 small">
+                                            <li>I am between 18-65 years old and weigh at least 50kg</li>
+                                            <li>I have answered all health questions truthfully</li>
+                                            <li>I understand my information will be kept confidential</li>
+                                            <li>I consent to donate blood if medically eligible</li>
+                                        </ul>
+                                    </label>
+                                    <div class="invalid-feedback">You must agree before submitting</div>
+                                </div>
+                            </div>
+
+                            <!-- Error Display (Rejection Reasons) -->
+                            {% if error %}
+                            <div class="alert alert-danger rounded-3 mb-4" role="alert">
+                                <h5 class="fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Unfortunately, You're Not Eligible Right Now</h5>
+                                <p class="mb-2">Based on your answers, you cannot donate blood at this time because:</p>
+                                <ul class="mb-3">
+                                    {% for reason in rejection_reasons %}
+                                    <li><strong>{{ reason }}</strong></li>
+                                    {% endfor %}
+                                </ul>
+                                <p class="mb-0 small"> <strong>Tip:</strong> Please consult a doctor and try registering again when you're fully healthy. Your willingness to help is appreciated! ❤️</p>
+                            </div>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-danger btn-lg w-100 rounded-3 py-3 fw-bold shadow-lg hover-lift" id="submitBtn">
+                                <span class="submit-text">
+                                    <i class="fas fa-heart me-2"></i>Complete Registration
+                                </span>
+                                <span class="loading-text d-none">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Processing...
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript for Form Logic -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle Last Donation Date based on First Time checkbox
+    const firstTimeCheckbox = document.getElementById('first_time');
+    const lastDateField = document.getElementById('lastDateField');
+    const lastDateInput = document.getElementById('last_date');
+    
+    function toggleLastDate() {
+        if (firstTimeCheckbox.checked) {
+            lastDateField.style.display = 'none';
+            lastDateInput.required = false;
+            lastDateInput.value = '';
+        } else {
+            lastDateField.style.display = 'block';
+            lastDateInput.required = true;
+        }
+    }
+    
+    firstTimeCheckbox.addEventListener('change', toggleLastDate);
+    toggleLastDate(); 
+    
+    // Progress Bar Animation
+    const form = document.getElementById('donorForm');
+    const progressBar = document.getElementById('formProgress');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    function updateProgress() {
+        const total = inputs.length;
+        let filled = 0;
+        
+        inputs.forEach(input => {
+            if (input.value.trim() !== '' || (input.type === 'checkbox' && input.checked)) {
+                filled++;
+            }
+        });
+        
+        const percent = Math.round((filled / total) * 100);
+        progressBar.style.width = percent + '%';
+    }
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', updateProgress);
+        input.addEventListener('change', updateProgress);
+    });
+    
+    // Form Validation
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.querySelector('.submit-text').classList.add('d-none');
+            submitBtn.querySelector('.loading-text').classList.remove('d-none');
+            submitBtn.disabled = true;
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Weight validation (minimum 50kg)
+    const weightInput = document.getElementById('weight');
+    weightInput.addEventListener('change', function() {
+        if (this.value && this.value < 50) {
+            this.setCustomValidity('Weight must be at least 50 kg for safe donation');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+{% endblock %}

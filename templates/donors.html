@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="donors-section py-5 mt-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h1 class="display-4 fw-bold mb-3">Our <span class="text-gradient">Heroes</span></h1>
+            <p class="lead text-muted">Meet the lifesavers in our community</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section glass-card p-4 rounded-4 mb-4" data-aos="fade-up">
+            <form method="GET" action="/donors" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Blood Group</label>
+                    <select name="blood_group" class="form-select rounded-3">
+                        <option value="">All Blood Types</option>
+                        {% for blood in ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] %}
+                        <option value="{{ blood }}" {% if selected_blood == blood %}selected{% endif %}>{{ blood }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">City</label>
+                    <select name="city" class="form-select rounded-3">
+                        <option value="">All Cities</option>
+                        {% for city in cities %}
+                        <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Health Status</label>
+                    <select name="health_status" class="form-select rounded-3">
+                        <option value="">All Status</option>
+                        <option value="eligible" {% if request.args.get('health_status') == 'eligible' %}selected{% endif %}>✅ Eligible Only</option>
+                        <option value="temporarily_inactive" {% if request.args.get('health_status') == 'temporarily_inactive' %}selected{% endif %}>⏸️ Temporarily Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-danger w-100 rounded-3 py-2">
+                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="row mb-4" data-aos="fade-up">
+            <div class="col-12">
+                <div class="glass-card p-3 rounded-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span class="fw-semibold">
+                        <i class="fas fa-users text-danger me-2"></i>
+                        {{ donors|length }} Donors Found
+                        {% if request.args.get('health_status') == 'eligible' %}
+                        <span class="badge bg-success ms-2">Eligible Only</span>
+                        {% endif %}
+                    </span>
+                    <a href="/register" class="btn btn-sm btn-outline-danger rounded-pill">
+                        <i class="fas fa-plus me-1"></i>Add New
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donors Grid -->
+        <div class="row g-4">
+            {% for donor in donors %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                <div class="donor-card glass-card rounded-4 overflow-hidden hover-lift h-100 {% if donor['health_status'] != 'eligible' %}opacity-75{% endif %}">
+                    
+                    <!-- Card Header -->
+                    <div class="card-header bg-gradient-light p-3 d-flex justify-content-between align-items-center">
+                        <div class="donor-avatar bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">
+                            {{ donor['name'][0] }}
+                        </div>
+                        <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">
+                            <i class="fas fa-tint me-1"></i>{{ donor['blood_group'] }}
+                        </span>
+                    </div>
+                    
+                    <!-- Card Body -->
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold mb-3">{{ donor['name'] }}</h5>
+                        
+                        <div class="donor-info mb-3">
+                            <div class="d-flex align-items-center mb-2 text-muted">
+                                <i class="fas fa-map-marker-alt text-danger me-2" style="width: 20px;"></i>
+                                <span>{{ donor['city'] }}</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2 text-muted">
+                                <i class="fas fa-birthday-cake text-danger me-2" style="width: 20px;"></i>
+                                <span>{{ donor['age'] }} years old</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2 text-muted">
+                                <i class="fas fa-phone text-danger me-2" style="width: 20px;"></i>
+                                <span>{{ donor['phone'] }}</span>
+                            </div>
+                            {% if donor['weight'] %}
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="fas fa-weight text-danger me-2" style="width: 20px;"></i>
+                                <span>{{ donor['weight'] }} kg</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Badges Row -->
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% if donor['is_first_time'] %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-star me-1"></i>First Time
+                            </span>
+                            {% else %}
+                            <span class="badge bg-info text-dark">
+                                <i class="fas fa-redo me-1"></i>Experienced
+                            </span>
+                            {% endif %}
+                            
+                            <!-- Health Status Badge -->
+                            {% if donor['health_status'] == 'eligible' %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i>Eligible
+                            </span>
+                            {% elif donor['health_status'] == 'temporarily_inactive' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-pause-circle me-1"></i>Temporarily Inactive
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle me-1"></i>Not Eligible
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Health Notes (if any) -->
+                        {% if donor['health_notes'] %}
+                        <div class="alert alert-light small p-2 mb-0">
+                            <i class="fas fa-info-circle text-muted me-1"></i>
+                            <span class="text-muted">{{ donor['health_notes'][:50] }}{% if donor['health_notes']|length > 50 %}...{% endif %}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-transparent p-3">
+                        <!-- Contact Button (Only show if eligible) -->
+                        {% if donor['health_status'] == 'eligible' %}
+                        <button class="btn btn-outline-danger w-100 rounded-3 contact-donor-btn mb-2" data-donor-name="{{ donor['name'] }}">
+                            <i class="fas fa-envelope me-2"></i>Contact Donor
+                        </button>
+                        {% else %}
+                        <button class="btn btn-secondary w-100 rounded-3 mb-2" disabled title="Donor is currently not eligible to donate">
+                            <i class="fas fa-lock me-2"></i>Currently Unavailable
+                        </button>
+                        {% endif %}
+                        
+                        <!-- Update Health Status Button -->
+                        <a href="{{ url_for('update_health', id=donor['id']) }}" class="btn btn-outline-warning w-100 rounded-3">
+                            <i class="fas fa-heartbeat me-2"></i>Update My Health
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center py-5" data-aos="fade-up">
+                <div class="empty-state">
+                    <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No donors found</h4>
+                    <p class="text-muted">Try adjusting your filters or be the first to register!</p>
+                    <a href="/register" class="btn btn-danger rounded-pill px-4 mt-2">Register Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Contact Modal Script (if you have it) -->
+<script>
+// Contact button functionality (keep your existing code)
+document.querySelectorAll('.contact-donor-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const donorName = this.getAttribute('data-donor-name');
+        alert(`Contact information for ${donorName} will be shared securely.`);
+    });
+});
+</script>
+{% endblock %}
