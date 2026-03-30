@@ -204,6 +204,33 @@ def get_stats():
         'blood_distribution': blood_data
     })
 
+@app.route('/donor/update-health/<int:id>', methods=['GET', 'POST'])
+def update_health(id):
+    db = get_db()
+    cursor = db.cursor()
+    
+    if request.method == 'POST':
+        cursor.execute('SELECT * FROM donors WHERE id = %s', (id,))
+        donor = cursor.fetchone()
+        
+        form_data = request.form.to_dict()
+        form_data['age'] = donor['age']
+        
+        health_status, rejection_reasons = evaluate_health(form_data)
+        health_notes = request.form.get('health_notes', '')
+        
+        cursor.execute('''
+            UPDATE donors SET health_status = %s, health_notes = %s WHERE id = %s
+        ''', (health_status, health_notes, id))
+        db.commit()
+        
+        return redirect(url_for('donors'))
+    
+    cursor.execute('SELECT * FROM donors WHERE id = %s', (id,))
+    donor = cursor.fetchone()
+    
+    return render_template('update_health.html', donor=donor)
+
 # --- ENTRY POINT ---
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
