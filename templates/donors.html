@@ -67,47 +67,47 @@
         <div class="row g-4">
             {% for donor in donors %}
             <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
-                <div class="donor-card glass-card rounded-4 overflow-hidden hover-lift h-100 {% if donor['health_status'] != 'eligible' %}opacity-75{% endif %}">
+                <div class="donor-card glass-card rounded-4 overflow-hidden hover-lift h-100 {% if donor.health_status != 'eligible' %}opacity-75{% endif %}">
                     
                     <!-- Card Header -->
                     <div class="card-header bg-gradient-light p-3 d-flex justify-content-between align-items-center">
                         <div class="donor-avatar bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" 
                              style="width: 50px; height: 50px; font-weight: bold; font-size: 1.2rem;">
-                            {{ donor['name'][0] }}
+                            {{ donor.name[0] if donor.name else '?' }}
                         </div>
                         <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">
-                            <i class="fas fa-tint me-1"></i>{{ donor['blood_group'] }}
+                            <i class="fas fa-tint me-1"></i>{{ donor.blood_group }}
                         </span>
                     </div>
                     
                     <!-- Card Body -->
                     <div class="card-body p-4">
-                        <h5 class="card-title fw-bold mb-3">{{ donor['name'] }}</h5>
+                        <h5 class="card-title fw-bold mb-3">{{ donor.name }}</h5>
                         
                         <div class="donor-info mb-3">
                             <div class="d-flex align-items-center mb-2 text-muted">
                                 <i class="fas fa-map-marker-alt text-danger me-2" style="width: 20px;"></i>
-                                <span>{{ donor['city'] }}</span>
+                                <span>{{ donor.city }}</span>
                             </div>
                             <div class="d-flex align-items-center mb-2 text-muted">
                                 <i class="fas fa-birthday-cake text-danger me-2" style="width: 20px;"></i>
-                                <span>{{ donor['age'] }} years old</span>
+                                <span>{{ donor.age }} years old</span>
                             </div>
                             <div class="d-flex align-items-center mb-2 text-muted">
                                 <i class="fas fa-phone text-danger me-2" style="width: 20px;"></i>
-                                <span>{{ donor['phone'] }}</span>
+                                <span>{{ donor.phone }}</span>
                             </div>
-                            {% if donor['weight'] %}
+                            {% if donor.weight %}
                             <div class="d-flex align-items-center text-muted">
                                 <i class="fas fa-weight text-danger me-2" style="width: 20px;"></i>
-                                <span>{{ donor['weight'] }} kg</span>
+                                <span>{{ donor.weight }} kg</span>
                             </div>
                             {% endif %}
                         </div>
 
                         <!-- Badges Row -->
                         <div class="d-flex flex-wrap gap-2 mb-3">
-                            {% if donor['is_first_time'] %}
+                            {% if donor.is_first_time %}
                             <span class="badge bg-success">
                                 <i class="fas fa-star me-1"></i>First Time
                             </span>
@@ -118,11 +118,11 @@
                             {% endif %}
                             
                             <!-- Health Status Badge -->
-                            {% if donor['health_status'] == 'eligible' %}
+                            {% if donor.health_status == 'eligible' %}
                             <span class="badge bg-success">
                                 <i class="fas fa-check-circle me-1"></i>Eligible
                             </span>
-                            {% elif donor['health_status'] == 'temporarily_inactive' %}
+                            {% elif donor.health_status == 'temporarily_inactive' %}
                             <span class="badge bg-warning text-dark">
                                 <i class="fas fa-pause-circle me-1"></i>Temporarily Inactive
                             </span>
@@ -134,10 +134,10 @@
                         </div>
                         
                         <!-- Health Notes (if any) -->
-                        {% if donor['health_notes'] %}
+                        {% if donor.health_notes %}
                         <div class="alert alert-light small p-2 mb-0">
                             <i class="fas fa-info-circle text-muted me-1"></i>
-                            <span class="text-muted">{{ donor['health_notes'][:50] }}{% if donor['health_notes']|length > 50 %}...{% endif %}</span>
+                            <span class="text-muted">{{ donor.health_notes[:50] }}{% if donor.health_notes|length > 50 %}...{% endif %}</span>
                         </div>
                         {% endif %}
                     </div>
@@ -145,8 +145,8 @@
                     <!-- Card Footer -->
                     <div class="card-footer bg-transparent p-3">
                         <!-- Contact Button (Only show if eligible) -->
-                        {% if donor['health_status'] == 'eligible' %}
-                        <button class="btn btn-outline-danger w-100 rounded-3 contact-donor-btn mb-2" data-donor-name="{{ donor['name'] }}">
+                        {% if donor.health_status == 'eligible' %}
+                        <button class="btn btn-outline-danger w-100 rounded-3 contact-donor-btn mb-2" data-donor-name="{{ donor.name }}">
                             <i class="fas fa-envelope me-2"></i>Contact Donor
                         </button>
                         {% else %}
@@ -156,7 +156,7 @@
                         {% endif %}
                         
                         <!-- Update Health Status Button -->
-                        <a href="{{ url_for('update_health', id=donor['id']) }}" class="btn btn-outline-warning w-100 rounded-3">
+                        <a href="{{ url_for('update_health', id=donor.id) }}" class="btn btn-outline-warning w-100 rounded-3">
                             <i class="fas fa-heartbeat me-2"></i>Update My Health
                         </a>
                     </div>
