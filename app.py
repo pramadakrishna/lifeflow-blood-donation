@@ -6,13 +6,12 @@ from datetime import date
 
 app = Flask(__name__)
 
-# --- DATABASE CONNECTION (FIXED FOR RENDER) ---
+# --- DATABASE CONNECTION ---
 def get_db():
     if 'db' not in g:
         database_url = os.environ.get("DATABASE_URL")
         if not database_url:
             raise Exception("DATABASE_URL not set")
-
         g.db = psycopg2.connect(database_url, cursor_factory=RealDictCursor)
     return g.db
 
@@ -44,6 +43,14 @@ def init_db():
         )
     ''')
     db.commit()
+
+# --- AUTO INIT DB (FIXED POSITION) ---
+with app.app_context():
+    try:
+        init_db()
+        print("✅ Database initialized")
+    except Exception as e:
+        print("❌ DB INIT ERROR:", e)
 
 # --- HEALTH CHECK ---
 def evaluate_health(form_data):
@@ -169,44 +176,6 @@ def donors():
     return render_template('donors.html', donors=all_donors, cities=cities, 
                          selected_blood=blood_filter, selected_city=city_filter)
 
-@app.route('/donor/update-health/<int:id>', methods=['GET', 'POST'])
-def update_health(id):
-    db = get_db()
-    cursor = db.cursor()
-    
-    if request.method == 'POST':
-        cursor.execute('SELECT * FROM donors WHERE id = %s', (id,))
-        donor = cursor.fetchone()
-        
-        form_data = request.form.to_dict()
-        form_data['age'] = donor['age']
-        
-        health_status, rejection_reasons = evaluate_health(form_data)
-        health_notes = request.form.get('health_notes', '')
-        
-        cursor.execute('''
-            UPDATE donors SET health_status = %s, health_notes = %s WHERE id = %s
-        ''', (health_status, health_notes, id))
-        db.commit()
-        
-        if health_status != 'eligible':
-            return render_template('update_health.html', 
-                                 donor=donor,
-                                 updated=True,
-                                 not_eligible=True,
-                                 rejection_reasons=rejection_reasons,
-                                 health_status=health_status)
-        
-        return redirect(url_for('donors'))
-    
-    cursor.execute('SELECT * FROM donors WHERE id = %s', (id,))
-    donor = cursor.fetchone()
-    
-    return render_template('update_health.html', 
-                         donor=donor, 
-                         updated=False,
-                         today=date.today().isoformat())
-
 @app.route('/api/stats')
 def get_stats():
     db = get_db()
@@ -228,8 +197,5 @@ def get_stats():
 
 # --- ENTRY POINT ---
 if __name__ == '__main__':
-    with app.app_context():
-        init_db()
-    
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
