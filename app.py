@@ -146,36 +146,45 @@ def success():
 
 @app.route('/donors')
 def donors():
-    blood_filter = request.args.get('blood_group', '')
-    city_filter = request.args.get('city', '')
-    health_filter = request.args.get('health_status', '')
+    try:
+        blood_filter = request.args.get('blood_group', '')
+        city_filter = request.args.get('city', '')
+        health_filter = request.args.get('health_status', '')
+        
+        db = get_db()
+        cursor = db.cursor()
+        
+        query = 'SELECT * FROM donors WHERE 1=1'
+        params = []
+        
+        if blood_filter:
+            query += ' AND blood_group = %s'
+            params.append(blood_filter)
+        if city_filter:
+            query += ' AND city LIKE %s'
+            params.append(f'%{city_filter}%')
+        if health_filter:
+            query += ' AND health_status = %s'
+            params.append(health_filter)
+        
+        query += ' ORDER BY id DESC'
+        cursor.execute(query, params)
+        all_donors = cursor.fetchall() or []
+        
+        cursor.execute('SELECT DISTINCT city FROM donors ORDER BY city')
+        cities = [row['city'] for row in cursor.fetchall()] if cursor.rowcount > 0 else []
+        
+        return render_template(
+            'donors.html',
+            donors=all_donors,
+            cities=cities,
+            selected_blood=blood_filter,
+            selected_city=city_filter
+        )
     
-    db = get_db()
-    cursor = db.cursor()
+    except Exception as e:
+        return f"Error loading donors page: {str(e)}"
     
-    query = 'SELECT * FROM donors WHERE 1=1'
-    params = []
-    
-    if blood_filter:
-        query += ' AND blood_group = %s'
-        params.append(blood_filter)
-    if city_filter:
-        query += ' AND city LIKE %s'
-        params.append(f'%{city_filter}%')
-    if health_filter:
-        query += ' AND health_status = %s'
-        params.append(health_filter)
-    
-    query += ' ORDER BY id DESC'
-    cursor.execute(query, params)
-    all_donors = cursor.fetchall()
-    
-    cursor.execute('SELECT DISTINCT city FROM donors ORDER BY city')
-    cities = [row['city'] for row in cursor.fetchall()]
-    
-    return render_template('donors.html', donors=all_donors, cities=cities, 
-                         selected_blood=blood_filter, selected_city=city_filter)
-
 @app.route('/api/stats')
 def get_stats():
     db = get_db()
