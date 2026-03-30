@@ -1,75 +1,66 @@
+import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask import Flask, render_template, request, redirect, url_for, g, jsonify
-from datetime import datetime, date
+from datetime import date
 
 app = Flask(__name__)
 
-# Database Configuration
-DB_CONFIG = {
-    'database': 'blood_donate_db',
-    'user': 'postgres',
-    'password': '9876',  
-    'host': 'localhost',
-    'port': 5432
-}
-
-# --- Database Connection ---
+# --- DATABASE CONNECTION (FIXED FOR RENDER) ---
 def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = psycopg2.connect(**DB_CONFIG, cursor_factory=RealDictCursor)
-    return db
+    if 'db' not in g:
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            raise Exception("DATABASE_URL not set")
+
+        g.db = psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+    return g.db
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
+    db = g.pop('db', None)
     if db is not None:
         db.close()
 
+# --- INIT DB ---
 def init_db():
-    with app.app_context():
-        db = get_db()
-        cursor = db.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS donors (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                blood_group TEXT NOT NULL,
-                age INTEGER NOT NULL,
-                city TEXT NOT NULL,
-                weight INTEGER,
-                is_first_time INTEGER DEFAULT 0,
-                last_donation_date TEXT,
-                health_status TEXT DEFAULT 'eligible',
-                health_notes TEXT,
-                registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        db.commit()
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS donors (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            blood_group TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            city TEXT NOT NULL,
+            weight INTEGER,
+            is_first_time INTEGER DEFAULT 0,
+            last_donation_date TEXT,
+            health_status TEXT DEFAULT 'eligible',
+            health_notes TEXT,
+            registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    db.commit()
 
-#  Evaluate Health Eligibility 
+# --- HEALTH CHECK ---
 def evaluate_health(form_data):
-    """Returns (health_status, rejection_reasons)"""
     status = 'eligible'
     reasons = []
     
     age = int(form_data.get('age', 0))
     weight = int(form_data.get('weight', 0)) if form_data.get('weight') else 0
     
-    # Age check
     if age < 18 or age > 65:
         status = 'not_eligible'
         reasons.append('Age must be between 18-65 years')
     
-    # Weight check
     if weight < 50:
         status = 'not_eligible'
         reasons.append('Weight must be at least 50 kg')
     
-    # Health questions
     if form_data.get('has_fever') == 'yes':
         status = 'temporarily_inactive' if status == 'eligible' else status
         reasons.append('Recent fever/illness (wait 2 weeks)')
@@ -100,16 +91,15 @@ def evaluate_health(form_data):
     
     return status, reasons
 
-# --- Routes ---
+# --- ROUTES ---
 @app.route('/')
 def home():
-    stats = get_stats()
+    stats = get_stats().json
     return render_template('index.html', stats=stats)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Collect form data
         name = request.form['name']
         email = request.form['email']
         phone = request.form['phone']
@@ -121,10 +111,8 @@ def register():
         last_date = request.form.get('last_date') if not is_first_time else None
         health_notes = request.form.get('health_notes', '')
         
-        # Evaluate health eligibility
         health_status, rejection_reasons = evaluate_health(request.form)
         
-        # If not eligible, show rejection page
         if health_status != 'eligible':
             return render_template('register.html', 
                                  error=True, 
@@ -132,7 +120,6 @@ def register():
                                  form_data=request.form,
                                  today=date.today().isoformat())
         
-        # Save eligible donor to database
         db = get_db()
         cursor = db.cursor()
         cursor.execute('''
@@ -188,25 +175,20 @@ def update_health(id):
     cursor = db.cursor()
     
     if request.method == 'POST':
-        # Get existing donor data
         cursor.execute('SELECT * FROM donors WHERE id = %s', (id,))
         donor = cursor.fetchone()
         
-        # Create merged form data with existing age
         form_data = request.form.to_dict()
-        form_data['age'] = donor['age']  # Keep existing age
+        form_data['age'] = donor['age']
         
-        # Re-evaluate health based on new answers
         health_status, rejection_reasons = evaluate_health(form_data)
         health_notes = request.form.get('health_notes', '')
         
-        # Update donor record
         cursor.execute('''
             UPDATE donors SET health_status = %s, health_notes = %s WHERE id = %s
         ''', (health_status, health_notes, id))
         db.commit()
         
-        # If now ineligible, show message
         if health_status != 'eligible':
             return render_template('update_health.html', 
                                  donor=donor,
@@ -217,7 +199,6 @@ def update_health(id):
         
         return redirect(url_for('donors'))
     
-    # GET: Show form with current donor data
     cursor.execute('SELECT * FROM donors WHERE id = %s', (id,))
     donor = cursor.fetchone()
     
@@ -225,7 +206,7 @@ def update_health(id):
                          donor=donor, 
                          updated=False,
                          today=date.today().isoformat())
-                         
+
 @app.route('/api/stats')
 def get_stats():
     db = get_db()
@@ -234,7 +215,6 @@ def get_stats():
     cursor.execute('SELECT COUNT(*) as total FROM donors')
     total = cursor.fetchone()['total']
     
-    cursor.execute('SELECT COUNT(*) as lives FROM donors')
     lives = total * 3
     
     cursor.execute('SELECT blood_group, COUNT(*) as count FROM donors GROUP BY blood_group')
@@ -246,6 +226,10 @@ def get_stats():
         'blood_distribution': blood_data
     })
 
+# --- ENTRY POINT ---
 if __name__ == '__main__':
-    init_db()
-    app.run(debug=True)
+    with app.app_context():
+        init_db()
+    
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
